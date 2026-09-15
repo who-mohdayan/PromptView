@@ -1,30 +1,24 @@
 # PromptView – AI Prompt Visualizer
 
-A clean, professional prompt engineering and visualization web application that takes raw natural-language prompts and decomposes them into their five fundamental structural components using **Google Gemini API** structured JSON output.
+PromptView is an AI-powered web application that analyzes natural-language prompts and presents their key components in a clear and visual format.
 
 ---
 
 ## Features
 
-- **Structural Decomposition**: Extracts and visually displays:
-  - **Role**: Persona, tone, and domain perspective.
-  - **Task**: The primary directive or core problem to solve.
-  - **Context**: Background knowledge, reference data, and scenario details.
-  - **Constraints**: Explicit rules, limitations, and negative constraints.
-  - **Expected Output**: Deliverable schema, style, length, or format.
-- **Clarity & Completeness Meter**: Scores prompt readiness (0–100%) and provides architectural prompt engineering recommendations.
-- **Modern Design System**: Styled according to `DESIGN.md` using HP Electric Blue (`#024ad8`), crisp ink typography (`#1a1a1a`), 16px soft-radius cards, 4px uppercase CTA buttons, and geometric chevron motifs.
-- **Interactive Example Library**: 1-click loading for Engineering, Marketing, Analytics, and Education prompts.
-- **Export & Reconstruct**: Copy as formatted Markdown, raw structured JSON, or an optimized prompt reconstruction with a single click.
-- **Fast & Secure**: Built with FastAPI, Pydantic, and Vanilla JS. API keys are stored server-side in `.env` and never exposed to the client.
-
+- **Prompt Analysis**: Analyzes a natural-language prompt and identifies key elements such as Role, Task, Context, Constraints, and Expected Output.
+- **Visual Breakdown**: Presents the analyzed prompt in a clear and structured visual format for easier understanding.
+- **AI-Powered Analysis**: Uses an LLM to process prompts and return structured information.
+- **Example Prompts**: Includes ready-to-use examples from different categories to quickly explore the application.
+- **Simple & Responsive Interface**: Provides a clean interface for entering prompts and viewing their analysis.
+- **Secure API Integration**: Keeps the AI API key on the server and manages requests through the backend.
 ---
 
 ## Tech Stack
 
 - **Backend**: Python 3.12, FastAPI, Pydantic, Uvicorn
 - **AI**: Google Gemini API (`gemini-3.8-flash`) via `google-genai`
-- **Frontend**: Semantic HTML5, Vanilla CSS3 (tokenized), Vanilla JavaScript (ES6+)
+- **Frontend**: HTML, CSS, JavaScript
 
 ---
 
