@@ -18,7 +18,7 @@ PromptView is an AI-powered web application that analyzes natural-language promp
 
 - **Backend**: Python 3.12, FastAPI, Pydantic, Uvicorn
 - **AI**: Google Gemini API (`gemini-3.8-flash`) via `google-genai`
-- **Frontend**: HTML, CSS, JavaScript
+- **Frontend**: HTML5, CSS, JavaScript
 
 ---
 
