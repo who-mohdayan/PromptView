@@ -1,0 +1,389 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>PromptView – AI Prompt Visualizer</title>
+  <meta name="description"
+    content="Deconstruct natural language prompts into structural components (Role, Task, Context, Constraints, Expected Output) using Google Gemini structured output.">
+  <link rel="stylesheet" href="./css/style.css">
+  <link rel="stylesheet" href="/static/css/style.css">
+
+  <style>
+    /* Keep the five structural component cards on one horizontal line */
+    .hero-cards-row {
+      display: flex !important;
+      flex-direction: row !important;
+      flex-wrap: nowrap !important;
+      justify-content: space-between !important;
+      align-items: stretch !important;
+      gap: 14px !important;
+      width: 100% !important;
+      max-width: 1020px !important;
+      margin: 24px auto 0 !important;
+      text-align: left !important;
+      box-sizing: border-box !important;
+    }
+
+    .hero-cards-row > .hero-mini-card,
+    .hero-mini-card {
+      display: block !important;
+      flex: 1 1 0% !important;
+      min-width: 0 !important;
+      background-color: #ffffff !important;
+      border: 1px solid #e8e8e8 !important;
+      border-radius: 8px !important;
+      padding: 14px 14px !important;
+      text-align: left !important;
+      box-shadow: 0 1px 3px rgba(0, 0, 0, 0.04) !important;
+      box-sizing: border-box !important;
+      transition: border-color 150ms ease, box-shadow 150ms ease, transform 150ms ease !important;
+    }
+
+    .hero-mini-card:hover {
+      border-color: #024ad8 !important;
+      box-shadow: 0 4px 12px rgba(2, 74, 216, 0.08) !important;
+      transform: translateY(-2px) !important;
+    }
+
+    .mini-card-title {
+      font-size: 0.875rem !important;
+      font-weight: 600 !important;
+      color: #1a1a1a !important;
+      line-height: 1.25 !important;
+      margin-bottom: 4px !important;
+      white-space: nowrap !important;
+      overflow: hidden !important;
+      text-overflow: ellipsis !important;
+    }
+
+    .mini-card-desc {
+      font-size: 0.75rem !important;
+      font-weight: 400 !important;
+      color: #636363 !important;
+      line-height: 1.35 !important;
+      margin: 0 !important;
+    }
+  </style>
+
+  <link rel="icon"
+    href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>⚡</text></svg>">
+</head>
+
+<body>
+
+  <!-- Top Navigation Header -->
+  <header class="navbar" role="banner">
+    <div class="container">
+      <a href="/" class="brand-wrapper" aria-label="PromptView Home">
+        <div class="brand-mark" aria-hidden="true">
+          <span class="brand-slash"></span>
+          <span class="brand-slash"></span>
+          <span class="brand-slash"></span>
+        </div>
+        <div class="brand-name">
+          PromptView
+          <span class="brand-tag">AI Visualizer</span>
+        </div>
+      </a>
+
+    </div>
+  </header>
+
+  <!-- Main Content Area -->
+  <main role="main">
+    <div class="container">
+
+      <!-- Hero Header -->
+      <section class="hero-section" aria-labelledby="heroTitle">
+        <div class="hero-eyebrow">
+          <span>Structural Prompt Architecture</span>
+        </div>
+        <h1 id="heroTitle" class="hero-title">
+          See the Structure Inside <span>Every Prompt</span>
+        </h1>
+        <p class="hero-subtitle">
+          Deconstruct conversational prompts into five actionable engineering components
+        </p>
+
+        <!-- Five Core Structural Components in Parallel Small Cards -->
+        <div class="hero-cards-row" aria-label="Five prompt engineering components">
+          <div class="hero-mini-card">
+            <h4 class="mini-card-title">Role</h4>
+            <p class="mini-card-desc">Persona &amp; voice</p>
+          </div>
+          <div class="hero-mini-card">
+            <h4 class="mini-card-title">Task</h4>
+            <p class="mini-card-desc">Core directive</p>
+          </div>
+          <div class="hero-mini-card">
+            <h4 class="mini-card-title">Context</h4>
+            <p class="mini-card-desc">Background &amp; data</p>
+          </div>
+          <div class="hero-mini-card">
+            <h4 class="mini-card-title">Constraints</h4>
+            <p class="mini-card-desc">Rules &amp; boundaries</p>
+          </div>
+          <div class="hero-mini-card">
+            <h4 class="mini-card-title">Expected Output</h4>
+            <p class="mini-card-desc">Format &amp; schema</p>
+          </div>
+        </div>
+      </section>
+
+      <!-- Alert Notification Banner Container -->
+      <div id="alertBanner" class="alert-banner" style="display: none;" role="alert">
+        <div class="alert-icon">⚠️</div>
+        <div class="alert-content">
+          <div id="alertTitle" class="alert-title">Notice</div>
+          <div id="alertDesc" class="alert-desc">Alert message goes here.</div>
+        </div>
+        <button id="alertCloseBtn" class="alert-close" aria-label="Dismiss alert">&times;</button>
+      </div>
+
+      <!-- Studio Input Card -->
+      <section class="prompt-card" aria-label="Prompt Input Studio">
+        <div class="input-header">
+          <label for="promptInput" class="input-label">
+            <span>Natural-Language Prompt</span>
+            <span class="badge-label">Input</span>
+          </label>
+          <span id="charCounter" class="char-counter">0 / 10,000</span>
+        </div>
+
+        <div class="prompt-textarea-wrap">
+          <textarea id="promptInput" class="prompt-textarea"
+            placeholder="Type or paste any prompt here (e.g. 'Act as a Senior Cloud Architect. Design a multi-region failover strategy for Kubernetes with strict zero data-loss constraints...')"
+            rows="5" spellcheck="false"></textarea>
+        </div>
+
+        <!-- Interactive Example Prompts -->
+        <div class="examples-bar" id="examplesContainer">
+          <span class="examples-title">Try Example:</span>
+          <!-- Dynamic example buttons inserted here -->
+          <button type="button" class="example-chip" data-example="code-refactor">
+            <span class="chip-cat">Engineering</span>
+            <span>Python Code Refactoring</span>
+          </button>
+          <button type="button" class="example-chip" data-example="marketing-campaign">
+            <span class="chip-cat">Marketing</span>
+            <span>B2B Product Launch</span>
+          </button>
+          <button type="button" class="example-chip" data-example="data-analyst">
+            <span class="chip-cat">Analytics</span>
+            <span>KPI Synthesis</span>
+          </button>
+          <button type="button" class="example-chip" data-example="socratic-tutor">
+            <span class="chip-cat">Education</span>
+            <span>Socratic Physics Tutor</span>
+          </button>
+        </div>
+
+        <!-- Input Actions Toolbar -->
+        <div class="input-actions">
+          <div class="hint-wrap">
+            <span>Pro tip: Press</span>
+            <kbd class="kbd">Ctrl</kbd> + <kbd class="kbd">Enter</kbd>
+            <span>to analyze instantly</span>
+          </div>
+
+          <div class="action-buttons-group">
+            <button id="clearBtn" class="btn-secondary" type="button">
+              Clear
+            </button>
+            <button id="analyzeBtn" class="btn-primary" type="button">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"
+                stroke-linecap="round" stroke-linejoin="round">
+                <polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"></polygon>
+              </svg>
+              <span>Deconstruct Prompt</span>
+            </button>
+          </div>
+        </div>
+      </section>
+
+      <!-- Loading State Panel -->
+      <section id="loadingPanel" class="loading-panel" style="display: none;" aria-live="polite" aria-busy="true">
+        <div class="loading-spinner-wrap">
+          <div class="spinner-outer"></div>
+          <div class="spinner-inner"></div>
+        </div>
+        <h2 id="loadingTitle" class="loading-title">Analyzing Prompt Components...</h2>
+        <p id="loadingSubtitle" class="loading-subtitle">Deconstructing Role, Task, Context, Constraints, and Expected
+          Output via Gemini</p>
+
+        <div class="loading-steps">
+          <div class="step-item active">
+            <span class="step-dot"></span>
+            <span>Parsing Tokens</span>
+          </div>
+          <div class="step-item active">
+            <span class="step-dot"></span>
+            <span>Schema Extraction</span>
+          </div>
+          <div class="step-item">
+            <span class="step-dot"></span>
+            <span>Quality Audit</span>
+          </div>
+        </div>
+      </section>
+
+      <!-- Results Visualization Section -->
+      <section id="resultsSection" class="results-section" style="display: none;"
+        aria-label="Prompt Visualization Breakdown">
+
+        <!-- Summary & Completeness Header Card -->
+        <div class="results-header-card">
+          <div class="summary-info">
+            <div class="summary-tag">Prompt Intent Summary</div>
+            <div id="summaryText" class="summary-text">—</div>
+          </div>
+
+          <div class="completeness-badge-wrap">
+            <div id="scoreCircle" class="score-circle">--%</div>
+            <div class="score-details">
+              <span class="score-label">Clarity Score</span>
+              <span id="scoreStatus" class="score-status">Well-Structured</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- 5 Core Visual Component Cards -->
+        <div class="components-grid">
+
+          <!-- Card 1: Role -->
+          <article class="component-card card-role">
+            <div class="card-header">
+              <div class="card-title-group">
+                <div class="card-icon" aria-hidden="true">👤</div>
+                <h3 class="card-title">Role & Persona</h3>
+              </div>
+              <span class="card-badge">Identity</span>
+            </div>
+            <div class="card-body">
+              <div id="roleHighlight" class="role-highlight">—</div>
+              <p id="roleDescription" class="role-desc">The specific persona, voice, or expertise the AI is requested to
+                embody.</p>
+            </div>
+          </article>
+
+          <!-- Card 2: Task -->
+          <article class="component-card card-task">
+            <div class="card-header">
+              <div class="card-title-group">
+                <div class="card-icon" aria-hidden="true">🎯</div>
+                <h3 class="card-title">Core Task & Directive</h3>
+              </div>
+              <span class="card-badge">Action</span>
+            </div>
+            <div class="card-body">
+              <div id="taskMain" class="task-main">—</div>
+            </div>
+          </article>
+
+          <!-- Card 3: Context -->
+          <article class="component-card card-context">
+            <div class="card-header">
+              <div class="card-title-group">
+                <div class="card-icon" aria-hidden="true">📖</div>
+                <h3 class="card-title">Context & Background</h3>
+              </div>
+              <span class="card-badge">Domain Knowledge</span>
+            </div>
+            <div class="card-body">
+              <div id="contextBody" class="context-body">—</div>
+            </div>
+          </article>
+
+          <!-- Card 4: Constraints -->
+          <article class="component-card card-constraints">
+            <div class="card-header">
+              <div class="card-title-group">
+                <div class="card-icon" aria-hidden="true">🛑</div>
+                <h3 class="card-title">Constraints & Rules</h3>
+              </div>
+              <span class="card-badge">Boundaries</span>
+            </div>
+            <div class="card-body">
+              <ul id="constraintsList" class="constraints-list">
+                <!-- Dynamically populated -->
+              </ul>
+            </div>
+          </article>
+
+          <!-- Card 5: Expected Output -->
+          <article class="component-card card-output">
+            <div class="card-header">
+              <div class="card-title-group">
+                <div class="card-icon" aria-hidden="true">📦</div>
+                <h3 class="card-title">Expected Output & Deliverable</h3>
+              </div>
+              <span class="card-badge">Format</span>
+            </div>
+            <div class="card-body">
+              <div id="outputBox" class="output-box">—</div>
+            </div>
+          </article>
+
+        </div>
+
+        <!-- Prompt Suggestions & Health Drawer -->
+        <div id="suggestionsCard" class="suggestions-card" style="display: none;">
+          <div class="suggestions-header">
+            <span style="font-size: 1.25rem;">💡</span>
+            <h3 class="suggestions-title">Architectural Recommendations to Improve This Prompt</h3>
+          </div>
+          <ul id="suggestionsList" class="suggestions-list">
+            <!-- Dynamically populated -->
+          </ul>
+        </div>
+
+        <!-- Action Toolbar -->
+        <div class="results-actions-bar">
+          <div class="action-bar-title">Export & Reconstruct</div>
+          <div class="action-buttons">
+            <button id="copyMarkdownBtn" class="btn-secondary" type="button">
+              <span>📋 Copy Markdown Spec</span>
+            </button>
+            <button id="copyJsonBtn" class="btn-secondary" type="button">
+              <span>{ } Copy Raw JSON</span>
+            </button>
+            <button id="copyOptimizedBtn" class="btn-secondary" type="button">
+              <span>⚡ Copy Reconstructed Prompt</span>
+            </button>
+          </div>
+        </div>
+
+      </section>
+
+    </div>
+  </main>
+
+  <!-- Notification Toast -->
+  <div id="toast" class="toast-msg" role="status" aria-live="polite">
+    <span class="toast-icon">✓</span>
+    <span id="toastText">Copied to clipboard!</span>
+  </div>
+
+  <!-- Footer adhering to DESIGN.md -->
+  <footer class="footer-strip" role="contentinfo">
+    <div class="container footer-content">
+      <div class="footer-brand">
+        <div class="brand-mark" aria-hidden="true">
+          <span class="brand-slash"></span>
+          <span class="brand-slash"></span>
+          <span class="brand-slash"></span>
+        </div>
+        <span>PromptView – AI Prompt Visualizer</span>
+      </div>
+      <div class="footer-info">
+        <span>Powered by FastAPI & Google Gemini</span>
+      </div>
+    </div>
+  </footer>
+
+  <script src="/static/js/app.js"></script>
+</body>
+
+</html>
